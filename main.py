@@ -1,11 +1,10 @@
 import sys
 from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QPushButton
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QPixmap
 from UI.ui_main_window import Ui_MainWindow  # Import the generated UI Python code
 import os
 import webbrowser
-import dll
+import pyMeow as pm
+import helper
 
 GITHUB_URL: str = "https://github.com/CodeDuckers"
 YOUTUBE_URL: str = "https://www.youtube.com/@codeduckers"
@@ -45,6 +44,7 @@ class MainWindow(QMainWindow):
         # Connect the button to the open file dialog function
         self.ui.browse_dll_button.clicked.connect(self.open_file_dialog)
         self.ui.inject_dll_button.clicked.connect(self.inject_dll)
+        self.ui.disable_ac_button.clicked.connect(self.disable_ac)
 
     def open_file_dialog(self):
         # Open the file explorer and get the selected file path with a filter for DLL files
@@ -67,42 +67,30 @@ class MainWindow(QMainWindow):
             self.ui.inject_status_label.setText("No DLL selected")
             return
 
-        # Find the PID of the target process
-        process_name = "Marvel-Win64-Shipping.exe"
-        # process_name = "notepad.exe"
-        pid = dll.find_process_pid(process_name)
-        if pid is None:
-            print(f"Process {process_name} not found!")
+        try:
+            process = pm.open_process("Marvel-Win64-Shipping.exe")
+            # process = pm.open_process("Notepad.exe")
+        except Exception as e:
+            print(e)
+            self.ui.inject_status_label.setText(f"Unable to find target process")
             return
-
-        print(f"Found process with PID: {pid}")
-
-        # Open the target process with all access
-        process_handle = dll.OpenProcess(dll.PROCESS_ALL_ACCESS, False, pid)
-        if not process_handle:
-            print(f"Unable to open process with PID {pid}")
+        
+        success: bool = pm.inject_library(process, self.dll_path)
+        pm.close_process(process)
+        self.ui.inject_status_label.setText("Success" if success else "Failed")
+        
+    def disable_ac(self):
+        try:
+            # process = pm.open_process("Marvel-Win64-Shipping.exe")
+            process = pm.open_process("Notepad.exe")
+        except Exception as e:
+            print(e)
+            self.ui.ac_status_label.setText(f"Unable to find process")
             return
-
-        # Allocate memory in the target process for the DLL path
-        dll_path_bytes = self.dll_path.encode('utf-8')
-        allocated_memory = dll.VirtualAllocEx(process_handle, 0, len(dll_path_bytes), dll.MEM_COMMIT | dll.MEM_RESERVE, dll.PAGE_READWRITE)
-        if not allocated_memory:
-            print("Failed to allocate memory in target process.")
-            return
-
-        # Write the DLL path to the allocated memory
-        written = dll.ctypes.c_int(0)
-        dll.WriteProcessMemory(process_handle, allocated_memory, dll_path_bytes, len(dll_path_bytes), dll.ctypes.byref(written))
-
-        # Create a remote thread in the target process to call LoadLibraryA
-        thread_id = dll.ctypes.c_ulong(0)
-        remote_thread = dll.CreateRemoteThread(process_handle, None, 0, dll.LoadLibraryA, allocated_memory, 0, dll.ctypes.byref(thread_id))
-        if not remote_thread:
-            print("Failed to create remote thread.")
-            return
-
-        print(f"Successfully injected DLL into process with PID {pid}")
-        self.ui.inject_status_label.setText("SUCCESS")
+        
+        helper.terminate_thread_by_name("Marvel-Win64-Shipping.exe", "RTHeartBeat")
+        helper.terminate_thread_by_name("Marvel-Win64-Shipping.exe", "AcSDKThread")
+        self.ui.ac_status_label.setText("Disabled")
 
 # Run the application
 if __name__ == "__main__":
