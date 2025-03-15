@@ -10,7 +10,9 @@ __pycache__/
 .Python
 build/
 develop-eggs/
-dist/
+#dist/
+JeffInjector-*.zip
+*.exe
 downloads/
 eggs/
 .eggs/

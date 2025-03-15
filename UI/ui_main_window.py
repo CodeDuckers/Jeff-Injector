@@ -15,10 +15,10 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QFrame, QHBoxLayout, QLabel,
-    QLayout, QMainWindow, QPushButton, QSizePolicy,
-    QSpacerItem, QStatusBar, QVBoxLayout, QWidget)
-import jeff_profile_rc
+from PySide6.QtWidgets import (QApplication, QComboBox, QFormLayout, QHBoxLayout,
+    QLabel, QMainWindow, QPushButton, QSizePolicy,
+    QStatusBar, QVBoxLayout, QWidget)
+# import UI.jeff_profile_rc as jeff_profile_rc
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -32,156 +32,118 @@ class Ui_MainWindow(object):
         MainWindow.setSizePolicy(sizePolicy)
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
-        self.verticalLayoutWidget = QWidget(self.centralwidget)
-        self.verticalLayoutWidget.setObjectName(u"verticalLayoutWidget")
-        self.verticalLayoutWidget.setGeometry(QRect(10, 10, 381, 551))
-        self.main_window_v_layout = QVBoxLayout(self.verticalLayoutWidget)
-        self.main_window_v_layout.setObjectName(u"main_window_v_layout")
-        self.main_window_v_layout.setContentsMargins(0, 0, 0, 0)
-        self.top_bar_h_layout = QHBoxLayout()
-        self.top_bar_h_layout.setObjectName(u"top_bar_h_layout")
-        self.horizontalSpacer = QSpacerItem(60, 20, QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Minimum)
-
-        self.top_bar_h_layout.addItem(self.horizontalSpacer)
-
-        self.jeff_pic = QLabel(self.verticalLayoutWidget)
-        self.jeff_pic.setObjectName(u"jeff_pic")
-        sizePolicy1 = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        self.layoutWidget = QWidget(self.centralwidget)
+        self.layoutWidget.setObjectName(u"layoutWidget")
+        self.layoutWidget.setGeometry(QRect(60, 20, 281, 541))
+        self.main_v_layout = QVBoxLayout(self.layoutWidget)
+        self.main_v_layout.setSpacing(30)
+        self.main_v_layout.setObjectName(u"main_v_layout")
+        self.main_v_layout.setContentsMargins(0, 0, 0, 0)
+        self.verticalLayout_2 = QVBoxLayout()
+        self.verticalLayout_2.setObjectName(u"verticalLayout_2")
+        self.jeff_image = QLabel(self.layoutWidget)
+        self.jeff_image.setObjectName(u"jeff_image")
+        sizePolicy1 = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
         sizePolicy1.setHorizontalStretch(0)
         sizePolicy1.setVerticalStretch(0)
-        sizePolicy1.setHeightForWidth(self.jeff_pic.sizePolicy().hasHeightForWidth())
-        self.jeff_pic.setSizePolicy(sizePolicy1)
-        self.jeff_pic.setBaseSize(QSize(100, 100))
-        self.jeff_pic.setStyleSheet(u"image: url(:/newPrefix/JEFF.png);")
+        sizePolicy1.setHeightForWidth(self.jeff_image.sizePolicy().hasHeightForWidth())
+        self.jeff_image.setSizePolicy(sizePolicy1)
+        self.jeff_image.setBaseSize(QSize(100, 100))
+        self.jeff_image.setTextFormat(Qt.TextFormat.AutoText)
+        self.jeff_image.setPixmap(QPixmap(u":/newPrefix/JEFF_smaller.png"))
+        self.jeff_image.setScaledContents(False)
+        self.jeff_image.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.jeff_image.setWordWrap(False)
 
-        self.top_bar_h_layout.addWidget(self.jeff_pic)
+        self.verticalLayout_2.addWidget(self.jeff_image)
 
-        self.horizontalSpacer_2 = QSpacerItem(60, 20, QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Minimum)
-
-        self.top_bar_h_layout.addItem(self.horizontalSpacer_2)
-
-
-        self.main_window_v_layout.addLayout(self.top_bar_h_layout)
-
-        self.name_links_frame = QFrame(self.verticalLayoutWidget)
-        self.name_links_frame.setObjectName(u"name_links_frame")
-        sizePolicy2 = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
-        sizePolicy2.setHorizontalStretch(0)
-        sizePolicy2.setVerticalStretch(0)
-        sizePolicy2.setHeightForWidth(self.name_links_frame.sizePolicy().hasHeightForWidth())
-        self.name_links_frame.setSizePolicy(sizePolicy2)
-        self.name_links_frame.setMinimumSize(QSize(100, 100))
-        self.name_links_frame.setAutoFillBackground(False)
-        self.name_links_frame.setFrameShape(QFrame.Shape.NoFrame)
-        self.name_links_frame.setFrameShadow(QFrame.Shadow.Plain)
-        self.verticalLayoutWidget_2 = QWidget(self.name_links_frame)
-        self.verticalLayoutWidget_2.setObjectName(u"verticalLayoutWidget_2")
-        self.verticalLayoutWidget_2.setGeometry(QRect(0, 0, 381, 102))
-        self.app_info_v_layout = QVBoxLayout(self.verticalLayoutWidget_2)
-        self.app_info_v_layout.setSpacing(0)
-        self.app_info_v_layout.setObjectName(u"app_info_v_layout")
-        self.app_info_v_layout.setSizeConstraint(QLayout.SizeConstraint.SetDefaultConstraint)
-        self.app_info_v_layout.setContentsMargins(0, 0, 0, 0)
-        self.app_name_label = QLabel(self.verticalLayoutWidget_2)
-        self.app_name_label.setObjectName(u"app_name_label")
-        sizePolicy3 = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
-        sizePolicy3.setHorizontalStretch(0)
-        sizePolicy3.setVerticalStretch(0)
-        sizePolicy3.setHeightForWidth(self.app_name_label.sizePolicy().hasHeightForWidth())
-        self.app_name_label.setSizePolicy(sizePolicy3)
+        self.app_title_label = QLabel(self.layoutWidget)
+        self.app_title_label.setObjectName(u"app_title_label")
         font = QFont()
-        font.setPointSize(13)
+        font.setPointSize(19)
         font.setBold(True)
-        self.app_name_label.setFont(font)
-        self.app_name_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.app_name_label.setTextInteractionFlags(Qt.TextInteractionFlag.NoTextInteraction)
+        self.app_title_label.setFont(font)
+        self.app_title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        self.app_info_v_layout.addWidget(self.app_name_label)
+        self.verticalLayout_2.addWidget(self.app_title_label)
+
+
+        self.main_v_layout.addLayout(self.verticalLayout_2)
 
         self.links_h_layout = QHBoxLayout()
         self.links_h_layout.setObjectName(u"links_h_layout")
-        self.links_h_layout.setSizeConstraint(QLayout.SizeConstraint.SetMinimumSize)
-        self.github_label = QLabel(self.verticalLayoutWidget_2)
-        self.github_label.setObjectName(u"github_label")
-        self.github_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.github_link_label = QLabel(self.layoutWidget)
+        self.github_link_label.setObjectName(u"github_link_label")
+        self.github_link_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        self.links_h_layout.addWidget(self.github_label)
+        self.links_h_layout.addWidget(self.github_link_label)
 
-        self.youtube_label = QLabel(self.verticalLayoutWidget_2)
-        self.youtube_label.setObjectName(u"youtube_label")
-        self.youtube_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.youtube_link_label = QLabel(self.layoutWidget)
+        self.youtube_link_label.setObjectName(u"youtube_link_label")
+        self.youtube_link_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        self.links_h_layout.addWidget(self.youtube_label)
+        self.links_h_layout.addWidget(self.youtube_link_label)
 
-        self.discord_label = QLabel(self.verticalLayoutWidget_2)
-        self.discord_label.setObjectName(u"discord_label")
-        self.discord_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.discord_link_label = QLabel(self.layoutWidget)
+        self.discord_link_label.setObjectName(u"discord_link_label")
+        self.discord_link_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        self.links_h_layout.addWidget(self.discord_label)
-
-
-        self.app_info_v_layout.addLayout(self.links_h_layout)
+        self.links_h_layout.addWidget(self.discord_link_label)
 
 
-        self.main_window_v_layout.addWidget(self.name_links_frame)
+        self.main_v_layout.addLayout(self.links_h_layout)
 
-        self.actions_v_layout = QVBoxLayout()
-        self.actions_v_layout.setObjectName(u"actions_v_layout")
-        self.dll_select_h_layout = QHBoxLayout()
-        self.dll_select_h_layout.setObjectName(u"dll_select_h_layout")
-        self.browse_dll_button = QPushButton(self.verticalLayoutWidget)
-        self.browse_dll_button.setObjectName(u"browse_dll_button")
+        self.options_f_layout = QFormLayout()
+        self.options_f_layout.setObjectName(u"options_f_layout")
+        self.select_dll_label = QLabel(self.layoutWidget)
+        self.select_dll_label.setObjectName(u"select_dll_label")
 
-        self.dll_select_h_layout.addWidget(self.browse_dll_button)
+        self.options_f_layout.setWidget(0, QFormLayout.LabelRole, self.select_dll_label)
 
-        self.dll_name_label = QLabel(self.verticalLayoutWidget)
-        self.dll_name_label.setObjectName(u"dll_name_label")
-        self.dll_name_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.select_dll_button = QPushButton(self.layoutWidget)
+        self.select_dll_button.setObjectName(u"select_dll_button")
 
-        self.dll_select_h_layout.addWidget(self.dll_name_label)
+        self.options_f_layout.setWidget(0, QFormLayout.FieldRole, self.select_dll_button)
 
+        self.injection_method_label = QLabel(self.layoutWidget)
+        self.injection_method_label.setObjectName(u"injection_method_label")
 
-        self.actions_v_layout.addLayout(self.dll_select_h_layout)
+        self.options_f_layout.setWidget(1, QFormLayout.LabelRole, self.injection_method_label)
 
-        self.ac_disable_h_layout = QHBoxLayout()
-        self.ac_disable_h_layout.setObjectName(u"ac_disable_h_layout")
-        self.disable_ac_button = QPushButton(self.verticalLayoutWidget)
-        self.disable_ac_button.setObjectName(u"disable_ac_button")
+        self.injection_method_select = QComboBox(self.layoutWidget)
+        self.injection_method_select.addItem("")
+        self.injection_method_select.setObjectName(u"injection_method_select")
 
-        self.ac_disable_h_layout.addWidget(self.disable_ac_button)
+        self.options_f_layout.setWidget(1, QFormLayout.FieldRole, self.injection_method_select)
 
-        self.ac_status_label = QLabel(self.verticalLayoutWidget)
+        self.ac_status_label = QLabel(self.layoutWidget)
         self.ac_status_label.setObjectName(u"ac_status_label")
-        self.ac_status_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        self.ac_disable_h_layout.addWidget(self.ac_status_label)
+        self.options_f_layout.setWidget(2, QFormLayout.LabelRole, self.ac_status_label)
+
+        self.ac_status_button = QPushButton(self.layoutWidget)
+        self.ac_status_button.setObjectName(u"ac_status_button")
+
+        self.options_f_layout.setWidget(2, QFormLayout.FieldRole, self.ac_status_button)
 
 
-        self.actions_v_layout.addLayout(self.ac_disable_h_layout)
-
-
-        self.main_window_v_layout.addLayout(self.actions_v_layout)
-
-        self.verticalSpacer = QSpacerItem(20, 150, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
-
-        self.main_window_v_layout.addItem(self.verticalSpacer)
+        self.main_v_layout.addLayout(self.options_f_layout)
 
         self.inject_v_layout = QVBoxLayout()
         self.inject_v_layout.setObjectName(u"inject_v_layout")
-        self.inject_dll_button = QPushButton(self.verticalLayoutWidget)
+        self.inject_dll_button = QPushButton(self.layoutWidget)
         self.inject_dll_button.setObjectName(u"inject_dll_button")
-        self.inject_dll_button.setAutoDefault(False)
 
         self.inject_v_layout.addWidget(self.inject_dll_button)
 
-        self.inject_status_label = QLabel(self.verticalLayoutWidget)
+        self.inject_status_label = QLabel(self.layoutWidget)
         self.inject_status_label.setObjectName(u"inject_status_label")
         self.inject_status_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.inject_v_layout.addWidget(self.inject_status_label)
 
 
-        self.main_window_v_layout.addLayout(self.inject_v_layout)
+        self.main_v_layout.addLayout(self.inject_v_layout)
 
         MainWindow.setCentralWidget(self.centralwidget)
         self.statusbar = QStatusBar(MainWindow)
@@ -195,16 +157,19 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"Jeff Injector", None))
-        self.jeff_pic.setText("")
-        self.app_name_label.setText(QCoreApplication.translate("MainWindow", u"Jeff Injector v1.0.0", None))
-        self.github_label.setText(QCoreApplication.translate("MainWindow", u"Github", None))
-        self.youtube_label.setText(QCoreApplication.translate("MainWindow", u"Youtube", None))
-        self.discord_label.setText(QCoreApplication.translate("MainWindow", u"Discord", None))
-        self.browse_dll_button.setText(QCoreApplication.translate("MainWindow", u"Browse DLL", None))
-        self.dll_name_label.setText(QCoreApplication.translate("MainWindow", u"DLL Name", None))
-        self.disable_ac_button.setText(QCoreApplication.translate("MainWindow", u"Disable AntiCheat", None))
-        self.ac_status_label.setText(QCoreApplication.translate("MainWindow", u"AC Status", None))
+        self.jeff_image.setText("")
+        self.app_title_label.setText(QCoreApplication.translate("MainWindow", u"Jeff Injector v1.0.0", None))
+        self.github_link_label.setText(QCoreApplication.translate("MainWindow", u"Github", None))
+        self.youtube_link_label.setText(QCoreApplication.translate("MainWindow", u"Youtube", None))
+        self.discord_link_label.setText(QCoreApplication.translate("MainWindow", u"Discord", None))
+        self.select_dll_label.setText(QCoreApplication.translate("MainWindow", u"Select DLL", None))
+        self.select_dll_button.setText(QCoreApplication.translate("MainWindow", u"Select", None))
+        self.injection_method_label.setText(QCoreApplication.translate("MainWindow", u"Injection Method", None))
+        self.injection_method_select.setItemText(0, QCoreApplication.translate("MainWindow", u"LoadLibraryA", None))
+
+        self.ac_status_label.setText(QCoreApplication.translate("MainWindow", u"Anticheat Status", None))
+        self.ac_status_button.setText(QCoreApplication.translate("MainWindow", u"Enabled", None))
         self.inject_dll_button.setText(QCoreApplication.translate("MainWindow", u"Inject", None))
-        self.inject_status_label.setText("")
+        self.inject_status_label.setText(QCoreApplication.translate("MainWindow", u"Injection Status", None))
     # retranslateUi
 

@@ -66,7 +66,6 @@ kernel32.CloseHandle.argtypes = [wintypes.HANDLE]
 kernel32.CloseHandle.restype = wintypes.BOOL
 
 def get_process_id(process_name):
-    
     return pm.open_process(process_name)["pid"]
 
 def terminate_thread_by_name(process_name, thread_name):
@@ -110,7 +109,6 @@ def terminate_thread_by_name(process_name, thread_name):
         print(f"Thread with name '{thread_name}' not found in {process_name}")
         return False
 
-    # Terminate the found thread
     h_thread = kernel32.OpenThread(THREAD_TERMINATE, False, target_thread_id)
     if not h_thread:
         print(f"Failed to open thread (Error: {ctypes.get_last_error()})")

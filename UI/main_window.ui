@@ -20,38 +20,25 @@
    <string>Jeff Injector</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QWidget" name="verticalLayoutWidget">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>10</y>
-      <width>381</width>
-      <height>551</height>
+      <x>60</x>
+      <y>20</y>
+      <width>281</width>
+      <height>541</height>
      </rect>
     </property>
-    <layout class="QVBoxLayout" name="main_window_v_layout">
+    <layout class="QVBoxLayout" name="main_v_layout">
+     <property name="spacing">
+      <number>30</number>
+     </property>
      <item>
-      <layout class="QHBoxLayout" name="top_bar_h_layout">
+      <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
-        <spacer name="horizontalSpacer">
-         <property name="orientation">
-          <enum>Qt::Orientation::Horizontal</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Policy::Fixed</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>60</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
-        <widget class="QLabel" name="jeff_pic">
+        <widget class="QLabel" name="jeff_image">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
@@ -62,198 +49,125 @@
            <height>100</height>
           </size>
          </property>
-         <property name="styleSheet">
-          <string notr="true">image: url(:/newPrefix/JEFF.png);</string>
-         </property>
          <property name="text">
           <string/>
+         </property>
+         <property name="textFormat">
+          <enum>Qt::TextFormat::AutoText</enum>
+         </property>
+         <property name="pixmap">
+          <pixmap resource="../resources/jeff_profile.qrc">:/newPrefix/JEFF_smaller.png</pixmap>
+         </property>
+         <property name="scaledContents">
+          <bool>false</bool>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignmentFlag::AlignCenter</set>
+         </property>
+         <property name="wordWrap">
+          <bool>false</bool>
          </property>
         </widget>
        </item>
        <item>
-        <spacer name="horizontalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Orientation::Horizontal</enum>
+        <widget class="QLabel" name="app_title_label">
+         <property name="font">
+          <font>
+           <pointsize>19</pointsize>
+           <bold>true</bold>
+          </font>
          </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Policy::Fixed</enum>
+         <property name="text">
+          <string>Jeff Injector v1.0.0</string>
          </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>60</width>
-           <height>20</height>
-          </size>
+         <property name="alignment">
+          <set>Qt::AlignmentFlag::AlignCenter</set>
          </property>
-        </spacer>
+        </widget>
        </item>
       </layout>
      </item>
      <item>
-      <widget class="QFrame" name="name_links_frame">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>100</width>
-         <height>100</height>
-        </size>
-       </property>
-       <property name="autoFillBackground">
-        <bool>false</bool>
-       </property>
-       <property name="frameShape">
-        <enum>QFrame::Shape::NoFrame</enum>
-       </property>
-       <property name="frameShadow">
-        <enum>QFrame::Shadow::Plain</enum>
-       </property>
-       <widget class="QWidget" name="verticalLayoutWidget_2">
-        <property name="geometry">
-         <rect>
-          <x>0</x>
-          <y>0</y>
-          <width>381</width>
-          <height>102</height>
-         </rect>
-        </property>
-        <layout class="QVBoxLayout" name="app_info_v_layout">
-         <property name="spacing">
-          <number>0</number>
-         </property>
-         <property name="sizeConstraint">
-          <enum>QLayout::SizeConstraint::SetDefaultConstraint</enum>
-         </property>
-         <item>
-          <widget class="QLabel" name="app_name_label">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>13</pointsize>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>Jeff Injector v1.0.0</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignmentFlag::AlignCenter</set>
-           </property>
-           <property name="textInteractionFlags">
-            <set>Qt::TextInteractionFlag::NoTextInteraction</set>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="links_h_layout">
-           <property name="sizeConstraint">
-            <enum>QLayout::SizeConstraint::SetMinimumSize</enum>
-           </property>
-           <item>
-            <widget class="QLabel" name="github_label">
-             <property name="text">
-              <string>Github</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignmentFlag::AlignCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="youtube_label">
-             <property name="text">
-              <string>Youtube</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignmentFlag::AlignCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="discord_label">
-             <property name="text">
-              <string>Discord</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignmentFlag::AlignCenter</set>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-        </layout>
-       </widget>
-      </widget>
-     </item>
-     <item>
-      <layout class="QVBoxLayout" name="actions_v_layout">
+      <layout class="QHBoxLayout" name="links_h_layout">
        <item>
-        <layout class="QHBoxLayout" name="dll_select_h_layout">
-         <item>
-          <widget class="QPushButton" name="browse_dll_button">
-           <property name="text">
-            <string>Browse DLL</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="dll_name_label">
-           <property name="text">
-            <string>DLL Name</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignmentFlag::AlignCenter</set>
-           </property>
-          </widget>
-         </item>
-        </layout>
+        <widget class="QLabel" name="github_link_label">
+         <property name="text">
+          <string>Github</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignmentFlag::AlignCenter</set>
+         </property>
+        </widget>
        </item>
        <item>
-        <layout class="QHBoxLayout" name="ac_disable_h_layout">
-         <item>
-          <widget class="QPushButton" name="disable_ac_button">
-           <property name="text">
-            <string>Disable AntiCheat</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="ac_status_label">
-           <property name="text">
-            <string>AC Status</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignmentFlag::AlignCenter</set>
-           </property>
-          </widget>
-         </item>
-        </layout>
+        <widget class="QLabel" name="youtube_link_label">
+         <property name="text">
+          <string>Youtube</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignmentFlag::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="discord_link_label">
+         <property name="text">
+          <string>Discord</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignmentFlag::AlignCenter</set>
+         </property>
+        </widget>
        </item>
       </layout>
      </item>
      <item>
-      <spacer name="verticalSpacer">
-       <property name="orientation">
-        <enum>Qt::Orientation::Vertical</enum>
-       </property>
-       <property name="sizeType">
-        <enum>QSizePolicy::Policy::Fixed</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>20</width>
-         <height>150</height>
-        </size>
-       </property>
-      </spacer>
+      <layout class="QFormLayout" name="options_f_layout">
+       <item row="0" column="0">
+        <widget class="QLabel" name="select_dll_label">
+         <property name="text">
+          <string>Select DLL</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QPushButton" name="select_dll_button">
+         <property name="text">
+          <string>Select</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="injection_method_label">
+         <property name="text">
+          <string>Injection Method</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QComboBox" name="injection_method_select">
+         <item>
+          <property name="text">
+           <string>LoadLibraryA</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="ac_status_label">
+         <property name="text">
+          <string>Anticheat Status</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QPushButton" name="ac_status_button">
+         <property name="text">
+          <string>Enabled</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
      <item>
       <layout class="QVBoxLayout" name="inject_v_layout">
@@ -262,15 +176,12 @@
          <property name="text">
           <string>Inject</string>
          </property>
-         <property name="autoDefault">
-          <bool>false</bool>
-         </property>
         </widget>
        </item>
        <item>
         <widget class="QLabel" name="inject_status_label">
          <property name="text">
-          <string/>
+          <string>Injection Status</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignmentFlag::AlignCenter</set>
