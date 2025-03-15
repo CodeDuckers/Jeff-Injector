@@ -11,6 +11,12 @@ A simple DLL injector and anti-cheat disabler for Marvel Rivals made entirely in
     - *For now it only supports LoadLibraryA*
 - Ability to disable the Anti-Cheat for Marvel Rivals
 
+# Important
+Every game update a few dll's get added to the game files that can cause GPU crashes for some users when using internal hacks. Search and delete/rename [these dll's](https://www.unknowncheats.me/forum/marvel-rivals/691694-reminder-game-updates.html) in your game files.
+
+Also, make sure you have this command in your launch options:
+`cmd /min /C "set __COMPAT_LAYER=RUNASINVOKER && start "" %command%"`
+
 # How to Use
 1. Refer to the build instructions or install/extract the latest release `.zip` file
 2. Run `JeffInjector.exe` as administrator
