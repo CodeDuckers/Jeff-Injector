@@ -10,13 +10,13 @@ __pycache__/
 .Python
 build/
 develop-eggs/
-#dist/
+# dist/
 JeffInjector-*.zip
 *.exe
 downloads/
 eggs/
 .eggs/
-lib/
+# lib/
 lib64/
 parts/
 sdist/
