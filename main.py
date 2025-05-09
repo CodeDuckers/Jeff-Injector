@@ -1,13 +1,14 @@
 import sys
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog
-from PySide6.QtCore import QCoreApplication
+from PySide6.QtCore import QCoreApplication, QThread, Signal, QObject
 from UI.ui_main_window import Ui_MainWindow  # Import the generated UI Python code
 from contextlib import suppress
 import os
 import webbrowser
 import pyMeow as pm
 import helper
+import time
 
 GITHUB_URL: str = "https://github.com/CodeDuckers/JeffInjector/tree/main"
 YOUTUBE_URL: str = "https://www.youtube.com/@codeduckers"
@@ -19,7 +20,7 @@ DLLS_TO_FIND = {
     "sl.dlss_g.dll",
     "sl.reflex.dll"
 }
-JEFF_VERSION: str = "v1.0.1"
+JEFF_VERSION: str = "v1.0.2"
 # pyside6-uic UI/main_window.ui -o UI/ui_main_window.py
 # pyside6-rcc resources/jeff_profile.qrc -o jeff_profile_rc.py
 # pyinstaller --onefile --icon=resources/JEFF.ico --name "JeffInjector" --windowed main.py
@@ -67,6 +68,14 @@ class MainWindow(QMainWindow):
 
         # Populate DLL status count on application startup
         self.count_dlls()
+
+        self.checker_thread.start()
+
+    def closeEvent(self, event):
+        self.checker_thread.worker.running = False
+        self.checker_thread.quit()
+        self.checker_thread.wait()
+        super().closeEvent(event)
 
     def open_file_dialog(self):
         """
@@ -157,7 +166,6 @@ class MainWindow(QMainWindow):
                 os.remove(path)
         self.count_dlls()
 
-
     def disable_ac(self):
         """
         Disable the Anti-Cheat by terminating the heartbeat and AcSDK threads
@@ -172,6 +180,71 @@ class MainWindow(QMainWindow):
         acSDK_success: bool = helper.terminate_thread_by_name("Marvel-Win64-Shipping.exe", "AcSDKThread")
         if heartbeat_success and acSDK_success:
             self.ui.ac_status_button.setText("Disabled")
+
+class GameCheckerWorker(QObject):
+    status_updated = Signal(str)
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        """
+        Initialize the worker and set a running flag to control loop execution
+        """
+        self.running = True
+
+    def stop(self):
+        """
+        Set running to False so the loop in run() exits cleanly
+        """
+        self.running = False
+
+    def run(self):
+        """
+        Continuously check if the target game process is running and emit the appropriate status
+        """
+        while self.running:
+            process = None
+            with suppress(Exception):
+                """
+                Suppress any exceptions raised while trying to open the game process
+                """
+                process = pm.open_process("Marvel-Win64-Shipping.exe")
+            if process is not None:
+                """
+                Emit status with a checkmark if process is found
+                """
+                self.status_updated.emit("Anti-Cheat Status {Game: ✅}")
+            else:
+                """
+                Emit status with a cross if process is not found
+                """
+                self.status_updated.emit("Anti-Cheat Status {Game: ❌}")
+            for _ in range(50):  # sleep 5s in 100ms steps to exit faster
+                if not self.running:
+                    break
+                QThread.msleep(100)
+
+class GameCheckerThread(QThread):
+    def __init__(self, ui_label):
+        super().__init__()
+        """
+        Initialize the thread and connect the worker's signal to the UI label
+        """
+        self.worker = GameCheckerWorker()
+        self.worker.status_updated.connect(ui_label.setText)
+
+    def run(self):
+        """
+        Start the worker's run loop in the thread
+        """
+        self.worker.run()
+
+    def stop(self):
+        """
+        Stop the worker to halt the run loop
+        """
+        self.worker.stop()
+
+
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = MainWindow()
