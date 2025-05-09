@@ -69,6 +69,7 @@ class MainWindow(QMainWindow):
         # Populate DLL status count on application startup
         self.count_dlls()
 
+        self.checker_thread = GameCheckerThread(self.ui.ac_status_label)
         self.checker_thread.start()
 
     def closeEvent(self, event):
