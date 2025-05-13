@@ -19,7 +19,7 @@ DLLS_TO_FIND = {
     "sl.dlss_g.dll",
     "sl.reflex.dll"
 }
-JEFF_VERSION: str = "v1.0.3"
+JEFF_VERSION: str = "v1.0.4"
 # pyside6-uic UI/main_window.ui -o UI/ui_main_window.py
 # pyside6-rcc resources/jeff_profile.qrc -o jeff_profile_rc.py
 # pyinstaller --onefile --icon=resources/JEFF.ico --name "JeffInjector" --windowed main.py
@@ -58,6 +58,7 @@ class MainWindow(QMainWindow):
         # Pass 'self' (MainWindow) to the GameCheckerThread, as it contains count_dlls
         self.checker_thread = GameCheckerThread(self.ui.ac_status_label, self.disable_ac, self)
         self.checker_thread.start()
+        self.checker_thread.worker.inject_visibility_changed.connect(self.update_inject_visibility)
         # Remove DLLs on startup
         self.remove_dlls()
     def closeEvent(self, event):
@@ -65,6 +66,13 @@ class MainWindow(QMainWindow):
         self.checker_thread.quit()
         self.checker_thread.wait()
         super().closeEvent(event)
+    def update_inject_visibility(self, visible: bool):
+        if visible:
+            self.ui.inject_dll_button.show()
+            self.checker_thread.worker.running = False
+        else:
+            self.ui.inject_dll_button.hide()
+
     def open_file_dialog(self):
         """
         Open the file dialog and get the selected file path
@@ -90,6 +98,8 @@ class MainWindow(QMainWindow):
             self.ui.inject_status_label.setText("Unable to find target process")
             return
         success: bool = pm.inject_library(process, self.dll_path)
+        self.ui.select_dll_button.setText("Select")
+        self.dll_path = None
         self.ui.inject_status_label.setText("Success" if success else "Failed")
     def get_install_path(self):
         """
@@ -158,40 +168,70 @@ class MainWindow(QMainWindow):
         helper.terminate_thread_by_name("Marvel-Win64-Shipping.exe", "RTHeartBeat")
         helper.terminate_thread_by_name("Marvel-Win64-Shipping.exe", "AcSDKThread")
 class GameCheckerWorker(QObject):
+    inject_visibility_changed = Signal(bool)
     status_updated = Signal(str)
     trigger_disable_ac = Signal()
     def __init__(self, dll_counter, parent=None):
         super().__init__(parent)
-        self.dll_counter = dll_counter  # Store the passed object that contains count_dlls
+        self.dll_counter = dll_counter
         self.running = True
         self.initializing = True
+        self.game_start_time = None
+        self.jeff_satisfied = False
+        self.next_check_time = None
+        self.ultTime = 45
     def stop(self):
         self.running = False
     def run(self):
         while self.running:
+            if self.jeff_satisfied is True:
+                self.inject_visibility_changed.emit(True)
+                # Show Inject BTN
+            if self.jeff_satisfied is False:
+                self.inject_visibility_changed.emit(False)
+                # Hide Inject BTN
             game_status = "❌"
             hb_status = "??"
             acsdk_status = "??"
             dll_count = "??"
+            current_time = time.time()
+            self.next_check_time = current_time
             try:
                 process = pm.open_process("Marvel-Win64-Shipping.exe")
                 if process is not None:
                     game_status = "✅"
-                    try:
-                        hb_killed = helper.terminate_thread_by_name("Marvel-Win64-Shipping.exe", "RTHeartBeat")
-                        acsdk_killed = helper.terminate_thread_by_name("Marvel-Win64-Shipping.exe", "AcSDKThread")
-                        if hb_killed or acsdk_killed:
-                            self.trigger_disable_ac.emit()
-                        hb_status = "✅" if hb_killed else "❌"
-                        acsdk_status = "✅" if acsdk_killed else "❌"
-                    except Exception:
-                        if self.initializing:
-                            hb_status = "??"
-                            acsdk_status = "??"
-                        else:
-                            hb_status = "❌"
-                            acsdk_status = "❌"
+                    if self.game_start_time is None:
+                        self.game_start_time = current_time
+                    elapsed = current_time - self.game_start_time
+                    if elapsed >= self.ultTime:
+                        try:
+                            hb_killed = helper.terminate_thread_by_name("Marvel-Win64-Shipping.exe", "RTHeartBeat")
+                            acsdk_killed = helper.terminate_thread_by_name("Marvel-Win64-Shipping.exe", "AcSDKThread")
+                            if hb_killed or acsdk_killed:
+                                self.ultTime = 15
+                                self.next_check_time = current_time + self.ultTime
+                            if self.next_check_time >= current_time and current_time >= self.next_check_time:
+                                hb_status = "✅ Jeff is satisfied!"
+                                acsdk_status = "✅ Jeff is satisfied!"
+                                self.jeff_satisfied = True
+                            else:
+                                hb_status = "✅ Swallowed!" if hb_killed else "Searching for food..."
+                                acsdk_status = "✅ Swallowed!" if acsdk_killed else "Searching for food..."
+                        except Exception:
+                            if self.initializing:
+                                hb_status = "??"
+                                acsdk_status = "??"
+                            else:
+                                hb_status = "❌ Failed, Retrying..."
+                                acsdk_status = "❌ Failed, Retrying..."
+                                self.game_start_time = current_time
+                    else:
+                        percent = min(int((elapsed / self.ultTime) * 100), 100)
+                        hb_status = f"Charging Ult! ({percent}%)"
+                        acsdk_status = f"Charging Ult! ({percent}%)"
                 else:
+                    self.game_start_time = None
+                    self.next_check_time = None
                     hb_status = "??"
                     acsdk_status = "??"
             except Exception:
@@ -199,16 +239,16 @@ class GameCheckerWorker(QObject):
                     game_status = "??"
                     hb_status = "??"
                     acsdk_status = "??"
-            # Fetch DLL count from the DLL counter object
             dll_count = self.dll_counter.count_dlls()
             self.status_updated.emit(
                 f"Status\n{{Game: {game_status}}}\n{{RTHeartBeat: {hb_status}}}\n{{AcSDKThread: {acsdk_status}}}\n{{Unwanted DLLs: {dll_count}}}"
             )
             self.initializing = False
-            for _ in range(50):
+            for _ in range(20):
                 if not self.running:
                     break
                 QThread.msleep(100)
+
 class GameCheckerThread(QThread):
     def __init__(self, ui_label, disable_ac_method, dll_counter):
         """
