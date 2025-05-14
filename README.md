@@ -18,6 +18,8 @@ Also, make sure you have this command in your launch options:
 `cmd /min /C "set __COMPAT_LAYER=RUNASINVOKER && start "" %command%"`
 
 # How to Use
+- [Youtube Video Guide](https://youtu.be/IzWPDmahlN4)
+
 1. Refer to the build instructions or install/extract the latest release `.zip` file
 2. Run `JeffInjector.exe` as administrator
 3. Click the `Select` button and navigate to your DLL
