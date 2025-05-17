@@ -9,6 +9,9 @@ import pyMeow as pm
 import sys
 import time
 import webbrowser
+import ctypes
+import subprocess
+EXE_NAME = "Marvel-Win64-Shipping.exe"
 GITHUB_URL: str = "https://github.com/CodeDuckers/JeffInjector/tree/main"
 YOUTUBE_URL: str = "https://www.youtube.com/@codeduckers"
 DISCORD_URL: str = "https://discord.gg/gcUGZjx8Rs"
@@ -19,7 +22,7 @@ DLLS_TO_FIND = {
     "sl.dlss_g.dll",
     "sl.reflex.dll"
 }
-JEFF_VERSION: str = "v1.0.4"
+JEFF_VERSION: str = "v1.0.5"
 # pyside6-uic UI/main_window.ui -o UI/ui_main_window.py
 # pyside6-rcc resources/jeff_profile.qrc -o jeff_profile_rc.py
 # pyinstaller --onefile --icon=resources/JEFF.ico --name "JeffInjector" --windowed main.py
@@ -92,7 +95,7 @@ class MainWindow(QMainWindow):
             self.ui.inject_status_label.setText("No DLL selected")
             return
         try:
-            process = pm.open_process("Marvel-Win64-Shipping.exe")
+            process = pm.open_process(f"{(EXE_NAME)}")
         except Exception as e:
             print(e)
             self.ui.inject_status_label.setText("Unable to find target process")
@@ -162,11 +165,11 @@ class MainWindow(QMainWindow):
         Disable the Anti-Cheat by terminating the heartbeat and AcSDK threads
         """
         try:
-            process = pm.open_process("Marvel-Win64-Shipping.exe")
+            process = pm.open_process(f"{(EXE_NAME)}")
         except Exception as e:
             return
-        helper.terminate_thread_by_name("Marvel-Win64-Shipping.exe", "RTHeartBeat")
-        helper.terminate_thread_by_name("Marvel-Win64-Shipping.exe", "AcSDKThread")
+        helper.terminate_thread_by_name(f"{(EXE_NAME)}", "RTHeartBeat")
+        helper.terminate_thread_by_name(f"{(EXE_NAME)}", "AcSDKThread")
 class GameCheckerWorker(QObject):
     inject_visibility_changed = Signal(bool)
     status_updated = Signal(str)
@@ -196,8 +199,16 @@ class GameCheckerWorker(QObject):
             dll_count = "??"
             current_time = time.time()
             self.next_check_time = current_time
+            # Dll Check
+            dll_count = self.dll_counter.count_dlls()
+            result = subprocess.run(["tasklist", "/FI", f"IMAGENAME eq {(EXE_NAME)}"], capture_output=True, text=True)
+            if 0 != dll_count and f"{(EXE_NAME)}" in result.stdout:
+                ctypes.windll.user32.MessageBoxW(0, "Unwanted DLLs: found\nClosing game\nPlease reopen Jeff without the game open", "DLL Warning", 0)
+                subprocess.run(["taskkill", "/F", "/IM", f"{(EXE_NAME)}"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                sys.exit(0)
+            # Dll Check
             try:
-                process = pm.open_process("Marvel-Win64-Shipping.exe")
+                process = pm.open_process(f"{(EXE_NAME)}")
                 if process is not None:
                     game_status = "✅"
                     if self.game_start_time is None:
@@ -205,8 +216,8 @@ class GameCheckerWorker(QObject):
                     elapsed = current_time - self.game_start_time
                     if elapsed >= self.ultTime:
                         try:
-                            hb_killed = helper.terminate_thread_by_name("Marvel-Win64-Shipping.exe", "RTHeartBeat")
-                            acsdk_killed = helper.terminate_thread_by_name("Marvel-Win64-Shipping.exe", "AcSDKThread")
+                            hb_killed = helper.terminate_thread_by_name(f"{(EXE_NAME)}", "RTHeartBeat")
+                            acsdk_killed = helper.terminate_thread_by_name(f"{(EXE_NAME)}", "AcSDKThread")
                             if hb_killed or acsdk_killed:
                                 self.ultTime = 15
                                 self.next_check_time = current_time + self.ultTime
@@ -239,7 +250,6 @@ class GameCheckerWorker(QObject):
                     game_status = "??"
                     hb_status = "??"
                     acsdk_status = "??"
-            dll_count = self.dll_counter.count_dlls()
             self.status_updated.emit(
                 f"Status\n{{Game: {game_status}}}\n{{RTHeartBeat: {hb_status}}}\n{{AcSDKThread: {acsdk_status}}}\n{{Unwanted DLLs: {dll_count}}}"
             )
