@@ -100,10 +100,16 @@ class MainWindow(QMainWindow):
             print(e)
             self.ui.inject_status_label.setText("Unable to find target process")
             return
-        success: bool = pm.inject_library(process, self.dll_path)
+        success = pm.inject_library(process, self.dll_path)
         self.ui.select_dll_button.setText("Select")
         self.dll_path = None
         self.ui.inject_status_label.setText("Success" if success else "Failed")
+        if success:
+            self.checker_thread.worker.running = False
+            self.checker_thread.quit()
+            self.checker_thread.wait()
+            QCoreApplication.quit()
+
     def get_install_path(self):
         """
         Retrieve the installation path of the game by parsing Steam's libraryfolders.vdf and appmanifest
