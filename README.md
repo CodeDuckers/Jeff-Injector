@@ -32,3 +32,8 @@ Also, make sure you have this command in your launch options:
     - This zip file is already included in the repo under the `lib` folder
 5. You can now run the project with `python main.py` or build the exe into the `dist` folder with the command:
     - `pyinstaller --onefile --icon=resources/JEFF.ico --name "JeffInjector" --windowed main.py`
+
+# The \tools Folder
+1. `build.bat` - Builds Jeff and opens the folder with the exe
+2. `RandomizeMAC.ps1` - Changes your MAC Adress, used by MR to Ban Accounts
+3. `removeDLLs.bat` - Removes the unwanted dlls from the MR Steam install * Jeff will do this if opened before MR
