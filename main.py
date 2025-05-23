@@ -102,11 +102,12 @@ class MainWindow(QMainWindow):
         success = pm.inject_library(process, self.dll_path)
         self.ui.select_dll_button.setText("Select")
         self.dll_path = None
-        self.ui.inject_status_label.setText("Success" if success else "Failed")
+        self.ui.inject_status_label.setText("Success, Jeff will now close!" if success else "Failed")
         if success:
             self.checker_thread.worker.running = False
             self.checker_thread.quit()
             self.checker_thread.wait()
+            time.sleep(5)
             QCoreApplication.quit()
 
     def get_install_path(self):
@@ -172,7 +173,7 @@ class GameCheckerWorker(QObject):
         self.game_start_time = None
         self.jeff_satisfied = False
         self.next_check_time = None
-        self.ultTime = 15
+        self.ultTime = 10
     def stop(self):
         self.running = False
     def run(self):
