@@ -1,9 +1,7 @@
 from contextlib import suppress
 from PySide6.QtCore import QCoreApplication, QThread, Signal, QObject, Qt
-from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog
 from UI.ui_main_window import Ui_MainWindow  # Import the generated UI Python code
-import helper
 import os
 import pyMeow as pm
 import sys
@@ -20,9 +18,10 @@ DLLS_TO_FIND = {
     "amd_fidelityfx_dx12.dll",
     "sl.interposer.dll",
     "sl.dlss_g.dll",
-    "sl.reflex.dll"
+    "sl.reflex.dll",
+    "QtWebEngineProcess.exe"
 }
-JEFF_VERSION: str = "v1.0.5"
+JEFF_VERSION: str = "v1.0.6"
 # pyside6-uic UI/main_window.ui -o UI/ui_main_window.py
 # pyside6-rcc resources/jeff_profile.qrc -o jeff_profile_rc.py
 # pyinstaller --onefile --icon=resources/JEFF.ico --name "JeffInjector" --windowed main.py
@@ -59,11 +58,9 @@ class MainWindow(QMainWindow):
         # Populate DLL status count on application startup
         self.count_dlls()
         # Pass 'self' (MainWindow) to the GameCheckerThread, as it contains count_dlls
-        self.checker_thread = GameCheckerThread(self.ui.ac_status_label, self.disable_ac, self)
+        self.checker_thread = GameCheckerThread(self.ui.ac_status_label, self)
         self.checker_thread.start()
         self.checker_thread.worker.inject_visibility_changed.connect(self.update_inject_visibility)
-        # Remove DLLs on startup
-        self.remove_dlls()
     def closeEvent(self, event):
         self.checker_thread.worker.running = False
         self.checker_thread.quit()
@@ -151,10 +148,6 @@ class MainWindow(QMainWindow):
             return 0
         found_paths = self.find_dlls(install_path)
         return len(found_paths)
-        # if len(found_paths) == 0:
-        #     self.ui.remove_dlls_button.setText(QCoreApplication.translate("MainWindow", u"Removed", None))
-        # else:
-        #     self.ui.remove_dlls_button.setText(QCoreApplication.translate("MainWindow", u"Remove", None))
     def remove_dlls(self):
         """
         Remove all identified DLLs from the game installation directory and refresh the count display
@@ -166,20 +159,9 @@ class MainWindow(QMainWindow):
             with suppress(Exception):
                 os.remove(path)
         self.count_dlls()
-    def disable_ac(self):
-        """
-        Disable the Anti-Cheat by terminating the heartbeat and AcSDK threads
-        """
-        try:
-            process = pm.open_process(f"{(EXE_NAME)}")
-        except Exception as e:
-            return
-        helper.terminate_thread_by_name(f"{(EXE_NAME)}", "RTHeartBeat")
-        helper.terminate_thread_by_name(f"{(EXE_NAME)}", "AcSDKThread")
 class GameCheckerWorker(QObject):
     inject_visibility_changed = Signal(bool)
     status_updated = Signal(str)
-    trigger_disable_ac = Signal()
     def __init__(self, dll_counter, parent=None):
         super().__init__(parent)
         self.dll_counter = dll_counter
@@ -188,7 +170,7 @@ class GameCheckerWorker(QObject):
         self.game_start_time = None
         self.jeff_satisfied = False
         self.next_check_time = None
-        self.ultTime = 45
+        self.ultTime = 15
     def stop(self):
         self.running = False
     def run(self):
@@ -200,9 +182,8 @@ class GameCheckerWorker(QObject):
                 self.inject_visibility_changed.emit(False)
                 # Hide Inject BTN
             game_status = "❌"
-            hb_status = "??"
-            acsdk_status = "??"
             dll_count = "??"
+            ult_status = "??"
             current_time = time.time()
             self.next_check_time = current_time
             # Dll Check
@@ -222,42 +203,23 @@ class GameCheckerWorker(QObject):
                     elapsed = current_time - self.game_start_time
                     if elapsed >= self.ultTime:
                         try:
-                            hb_killed = helper.terminate_thread_by_name(f"{(EXE_NAME)}", "RTHeartBeat")
-                            acsdk_killed = helper.terminate_thread_by_name(f"{(EXE_NAME)}", "AcSDKThread")
-                            if hb_killed or acsdk_killed:
-                                self.ultTime = 15
-                                self.next_check_time = current_time + self.ultTime
-                            if self.next_check_time >= current_time and current_time >= self.next_check_time:
-                                hb_status = "✅ Jeff is satisfied!"
-                                acsdk_status = "✅ Jeff is satisfied!"
-                                self.jeff_satisfied = True
-                            else:
-                                hb_status = "✅ Swallowed!" if hb_killed else "Searching for food..."
-                                acsdk_status = "✅ Swallowed!" if acsdk_killed else "Searching for food..."
+                            self.jeff_satisfied = True # Bypass
                         except Exception:
                             if self.initializing:
-                                hb_status = "??"
-                                acsdk_status = "??"
+                                print("initializing self")
                             else:
-                                hb_status = "❌ Failed, Retrying..."
-                                acsdk_status = "❌ Failed, Retrying..."
                                 self.game_start_time = current_time
                     else:
                         percent = min(int((elapsed / self.ultTime) * 100), 100)
-                        hb_status = f"Charging Ult! ({percent}%)"
-                        acsdk_status = f"Charging Ult! ({percent}%)"
+                        ult_status = f"Charging Ult! ({percent}%)"
                 else:
                     self.game_start_time = None
                     self.next_check_time = None
-                    hb_status = "??"
-                    acsdk_status = "??"
             except Exception:
                 if self.initializing:
                     game_status = "??"
-                    hb_status = "??"
-                    acsdk_status = "??"
             self.status_updated.emit(
-                f"Status\n{{Game: {game_status}}}\n{{RTHeartBeat: {hb_status}}}\n{{AcSDKThread: {acsdk_status}}}\n{{Unwanted DLLs: {dll_count}}}"
+                f"Status\n{{Game: {game_status}}}\n{{Ult: {ult_status}}}\n{{Unwanted DLLs: {dll_count}}}"
             )
             self.initializing = False
             for _ in range(20):
@@ -266,14 +228,13 @@ class GameCheckerWorker(QObject):
                 QThread.msleep(100)
 
 class GameCheckerThread(QThread):
-    def __init__(self, ui_label, disable_ac_method, dll_counter):
+    def __init__(self, ui_label, dll_counter):
         """
         Create and configure the game checker thread, wiring UI and control signals
         """
         super().__init__()
         self.worker = GameCheckerWorker(dll_counter)  # Pass the MainWindow instance here
         self.worker.status_updated.connect(ui_label.setText, Qt.QueuedConnection)
-        self.worker.trigger_disable_ac.connect(disable_ac_method)
     def run(self):
         """
         Start the worker's run loop within this thread
