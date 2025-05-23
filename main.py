@@ -1,6 +1,6 @@
 from contextlib import suppress
 from PySide6.QtCore import QCoreApplication, QThread, Signal, QObject, Qt
-from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog
+from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QMessageBox
 from UI.ui_main_window import Ui_MainWindow  # Import the generated UI Python code
 import os
 import pyMeow as pm
@@ -9,6 +9,8 @@ import time
 import webbrowser
 import ctypes
 import subprocess
+import traceback
+from datetime import datetime
 EXE_NAME = "Marvel-Win64-Shipping.exe"
 GITHUB_URL: str = "https://github.com/CodeDuckers/JeffInjector/tree/main"
 YOUTUBE_URL: str = "https://www.youtube.com/@codeduckers"
@@ -21,7 +23,7 @@ DLLS_TO_FIND = {
     "sl.reflex.dll",
     "QtWebEngineProcess.exe"
 }
-JEFF_VERSION: str = "v1.0.6"
+JEFF_VERSION: str = "v1.0.7"
 # pyside6-uic UI/main_window.ui -o UI/ui_main_window.py
 # pyside6-rcc resources/jeff_profile.qrc -o jeff_profile_rc.py
 # pyinstaller --onefile --icon=resources/JEFF.ico --name "JeffInjector" --windowed main.py
@@ -188,7 +190,12 @@ class GameCheckerWorker(QObject):
             self.next_check_time = current_time
             # Dll Check
             dll_count = self.dll_counter.count_dlls()
-            result = subprocess.run(["tasklist", "/FI", f"IMAGENAME eq {(EXE_NAME)}"], capture_output=True, text=True)
+            result = subprocess.run(
+                ["tasklist", "/FI", f"IMAGENAME eq {EXE_NAME}"],
+                capture_output=True,
+                text=True,
+                creationflags=subprocess.CREATE_NO_WINDOW
+            )
             if 0 != dll_count and f"{(EXE_NAME)}" in result.stdout:
                 ctypes.windll.user32.MessageBoxW(0, "Unwanted DLLs: found\nClosing game\nPlease reopen Jeff without the game open", "DLL Warning", 0)
                 subprocess.run(["taskkill", "/F", "/IM", f"{(EXE_NAME)}"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -246,7 +253,25 @@ class GameCheckerThread(QThread):
         """
         self.worker.stop()
 if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    window = MainWindow()
-    window.show()
-    sys.exit(app.exec())
+    try:
+        app = QApplication(sys.argv)
+        window = MainWindow()
+        window.remove_dlls()
+        window.show()
+        sys.exit(app.exec())
+    except Exception as e:
+        # Format timestamp for filename
+        timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+        log_filename = f"jeff-crash{timestamp}.log"
+        # Get traceback as string
+        tb_str = traceback.format_exc()
+        # Save to log file
+        with open(log_filename, "w", encoding="utf-8") as f:
+            f.write(tb_str)
+        # Show error in message box
+        error_message = f"An unexpected error occurred:\n{e}\n\nSee {log_filename} for details."
+        # Ensure QApplication exists for QMessageBox
+        if QApplication.instance() is None:
+            app = QApplication(sys.argv)
+        QMessageBox.critical(None, "Jeff Injector Crash", error_message)
+        sys.exit(1)
