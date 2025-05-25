@@ -3,7 +3,7 @@ setlocal enabledelayedexpansion
 
 set "STEAM_PATH=%ProgramFiles(x86)%\Steam"
 set "APP_ID=2767030"
-set "TARGET_DLLS=amd_fidelityfx_dx12.dll sl.interposer.dll sl.dlss_g.dll sl.reflex.dll"
+set "TARGET_DLLS=amd_fidelityfx_dx12.dll sl.interposer.dll sl.dlss_g.dll sl.reflex.dll QtWebEngineProcess.exe"
 set "INSTALL_PATH="
 
 rem Check default library
