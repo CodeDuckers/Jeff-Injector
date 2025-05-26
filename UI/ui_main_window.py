@@ -157,11 +157,7 @@ class Ui_MainWindow(object):
         self.select_dll_button.setText(QCoreApplication.translate("MainWindow", u"Select", None))
         # self.injection_method_label.setText(QCoreApplication.translate("MainWindow", u"Injection Method", None))
         # self.injection_method_select.setItemText(0, QCoreApplication.translate("MainWindow", u"LoadLibraryA", None))
-        game_status = "??"
-        hb_status = "??"
-        acsdk_status = "??"
-        dll_count = "??"
-        self.ac_status_label.setText(QCoreApplication.translate("MainWindow", f"Status\n{{G: {game_status}}}\n{{RTHB: {hb_status}}}\n{{ASDKT: {acsdk_status}}}\n{{DLLs: {dll_count}}}", None))
+        self.ac_status_label.setText(QCoreApplication.translate("MainWindow", f"Status\n{{Game: ??}}\n{{Ult: ??}}\n{{Unwanted Files: ??}}", None))
         # self.ac_status_button.setText(QCoreApplication.translate("MainWindow", u"Enabled", None))
         # self.ac_status_label.setText(QCoreApplication.translate("MainWindow", u"Remove DLLs", None))
         # self.remove_dlls_button.setText(QCoreApplication.translate("MainWindow", u"Remove", None))
