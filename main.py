@@ -21,10 +21,9 @@ UNWANTEDFILES_TO_FIND = {
     "amd_fidelityfx_dx12.dll",
     "sl.interposer.dll",
     "sl.dlss_g.dll",
-    "sl.reflex.dll",
-    "QtWebEngineProcess.exe"
+    "sl.reflex.dll"
 }
-JEFF_VERSION: str = "v1.0.8"
+JEFF_VERSION: str = "v1.0.9"
 
 log_dir = "JeffLogs"
 os.makedirs(log_dir, exist_ok=True)
@@ -44,6 +43,19 @@ logger = logging.getLogger()
 
 class MainWindow(QMainWindow):
     dll_path: str = None
+    def show_unwantedfiles_message(self):
+        install_path = self.get_install_path()
+        if install_path is None:
+            QMessageBox.warning(self, "Unwanted DLLs", "Game install path not found.")
+            return
+        found_paths = self.find_unwantedfiles(install_path)
+        if not found_paths:
+            QMessageBox.information(self, "Unwanted DLLs", "No unwanted DLLs found.")
+            return
+        # Extract just the filenames for display
+        found_files = [os.path.basename(p) for p in found_paths]
+        msg = "Unwanted DLLs found:\n" + "\n".join(found_files)
+        QMessageBox.warning(self, "Unwanted DLLs", msg)
 
     def __init__(self):
         self._install_path_cache = None
@@ -258,7 +270,7 @@ class GameCheckerWorker(QObject):
             )
             if 0 != unwantedfiles_count and f"{EXE_NAME}" in result.stdout:
                 logger.warning("GameCheckerWorker : Unwanted Filess found while game running, closing game")
-                ctypes.windll.user32.MessageBoxW(0, "Unwanted Filess: found\nClosing game\nPlease reopen Jeff without the game open", "Unwanted Files Warning", 0)
+                self.show_unwantedfiles_message()
                 subprocess.run(["taskkill", "/F", "/IM", f"{EXE_NAME}"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
                 sys.exit(0)
             try:
